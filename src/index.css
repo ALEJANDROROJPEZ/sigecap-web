@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Identidad institucional: guinda, dorado y verde del Gobierno de México; Noto Sans para la interfaz
+   y Noto Serif para los títulos. Los colores de superficie cambian con el tema (claro u oscuro). */
+@theme {
+  --font-sans: "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif", ui-serif, Georgia, serif;
+
+  --color-guinda-50: #fbf1f4;
+  --color-guinda-100: #f5dde4;
+  --color-guinda-200: #e9b6c5;
+  --color-guinda-300: #d4829b;
+  --color-guinda-400: #ba4e71;
+  --color-guinda-500: #9b2247;
+  --color-guinda-600: #7f1b3b;
+  --color-guinda-700: #611232;
+  --color-guinda-800: #4a0e27;
+  --color-guinda-900: #33091b;
+
+  --color-dorado-100: #f4ebcf;
+  --color-dorado-300: #e6d194;
+  --color-dorado-500: #a57f2c;
+  --color-dorado-700: #7a5d1e;
+
+  --color-verde-100: #dcede8;
+  --color-verde-300: #8cc0b3;
+  --color-verde-500: #1e5b4f;
+  --color-verde-700: #002f2a;
+
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-realce: var(--realce);
+  --color-borde: var(--borde);
+  --color-texto: var(--texto);
+  --color-suave: var(--suave);
+  --color-marca: var(--marca);
+  --color-exito: var(--exito);
+  --color-aviso: var(--aviso);
+  --color-peligro: var(--peligro);
+}
+
+:root {
+  --fondo: #f2f3f3;
+  --superficie: #ffffff;
+  --realce: #f7f7f8;
+  --borde: #d9dcde;
+  --texto: #161a1d;
+  --suave: #5c6670;
+  --marca: #611232;
+  --exito: #1e5b4f;
+  --aviso: #7a5d1e;
+  --peligro: #b42318;
+  color-scheme: light;
+}
+
+.dark {
+  --fondo: #121517;
+  --superficie: #1b1f23;
+  --realce: #23282d;
+  --borde: #333a41;
+  --texto: #eceef0;
+  --suave: #a3adb7;
+  --marca: #e08aa5;
+  --exito: #7fc4b3;
+  --aviso: #e6d194;
+  --peligro: #ff8a7a;
+  color-scheme: dark;
+}
+
+@layer base {
+  html { font-family: var(--font-sans); }
+  body { background: var(--fondo); color: var(--texto); font-size: 0.9375rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  h1, h2 { font-family: var(--font-serif); letter-spacing: -0.01em; }
+  :focus-visible { outline: 2px solid var(--color-dorado-500); outline-offset: 2px; }
+  ::selection { background: var(--color-dorado-300); color: #161a1d; }
+  button, [role="button"] { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+}
+
+@layer components {
+  /* Tabla que en pantallas angostas se convierte en una lista de fichas (cada celda muestra su etiqueta) */
+  .tabla { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .tabla th { text-align: left; font-weight: 600; color: var(--suave); padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+  .tabla td { padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--borde); vertical-align: middle; }
+  .tabla tbody tr:last-child td { border-bottom: none; }
+  .tabla tbody tr:hover { background: var(--realce); }
+  .tabla .num { font-variant-numeric: tabular-nums; }
+
+  @media (min-width: 768px) {
+    .tabla td { white-space: nowrap; }
+    .tabla td.principal, .tabla td.ajusta { white-space: normal; }
+    .tabla td.principal { min-width: 12rem; }
+  }
+
+  @media (max-width: 767px) {
+    .tabla thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .tabla, .tabla tbody, .tabla tr, .tabla td { display: block; }
+    .tabla tr { padding: 0.5rem 0; border-bottom: 1px solid var(--borde); }
+    .tabla tbody tr:last-child { border-bottom: none; }
+    .tabla td { display: flex; gap: 0.75rem; justify-content: space-between; align-items: baseline; padding: 0.25rem 1rem; border-bottom: none; text-align: right; }
+    .tabla td::before { content: attr(data-etiqueta); color: var(--suave); font-size: 0.8125rem; text-align: left; flex-shrink: 0; }
+    .tabla td[data-etiqueta=""]::before, .tabla td:not([data-etiqueta])::before { content: none; }
+    .tabla td.principal { display: block; font-weight: 600; font-size: 0.9375rem; text-align: left; }
+    .tabla td.principal::before { content: none; }
+    .tabla td.acciones { justify-content: flex-start; padding-top: 0.5rem; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
