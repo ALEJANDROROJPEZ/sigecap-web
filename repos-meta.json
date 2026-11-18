@@ -1,0 +1,137 @@
+{
+  "sincronizadoEn": "2026-11-18T13:57:25.693Z",
+  "resumenApi": {
+    "titulo": "SIGECAP API",
+    "version": "1.0.0",
+    "descripcion": "API REST del sistema de gestión de cursos de capacitación de la CNBBBJ Oaxaca. Todas las respuestas son JSON salvo las descargas. Los listados paginados devuelven {total, pagina, porPagina, datos}; los errores, {error, detalles}.",
+    "totalRutas": 53,
+    "totalOperaciones": 64,
+    "tags": [
+      "Autenticación",
+      "Usuarios y roles",
+      "Catálogos",
+      "Empleados",
+      "Cursos",
+      "Mis cursos",
+      "Asignaciones y correos",
+      "Evidencias",
+      "Notificaciones",
+      "Reportes",
+      "Bitácora"
+    ]
+  },
+  "repositorios": {
+    "api": {
+      "nombre": "sigecap-api",
+      "disponible": true,
+      "url": "https://github.com/ALEJANDROROJPEZ/sigecap-api",
+      "ramaActual": "rama1",
+      "ramas": [
+        "main",
+        "rama1"
+      ],
+      "ultimoCommit": {
+        "sha": "41b251e9bd40df34034864e289d10cb4306a83ac",
+        "corto": "41b251e",
+        "autor": "¨ALEJANDROROJPEZ¨",
+        "fecha": "2026-11-18T07:57:21-06:00",
+        "refs": [
+          "HEAD -> rama1",
+          "origin/rama1"
+        ],
+        "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+      },
+      "commits": [
+        {
+          "sha": "41b251e9bd40df34034864e289d10cb4306a83ac",
+          "corto": "41b251e",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-18T07:57:21-06:00",
+          "refs": [
+            "HEAD -> rama1",
+            "origin/rama1"
+          ],
+          "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+        },
+        {
+          "sha": "f612d6e83ffe6cde129522b1fab9e729164704c3",
+          "corto": "f612d6e",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-16T20:57:13-06:00",
+          "refs": [],
+          "mensaje": "Api v1"
+        },
+        {
+          "sha": "53410760fad76a0e24cd61fadf82b0382bb10e4e",
+          "corto": "5341076",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-15T05:49:04-06:00",
+          "refs": [
+            "origin/main",
+            "main"
+          ],
+          "mensaje": "Primer commit"
+        }
+      ],
+      "archivosRecientes": [
+        "M\t.gitignore"
+      ]
+    },
+    "web": {
+      "nombre": "sigecap-web",
+      "disponible": true,
+      "url": "https://github.com/ALEJANDROROJPEZ/sigecap-web",
+      "ramaActual": "main",
+      "ramas": [
+        "main"
+      ],
+      "ultimoCommit": {
+        "sha": "a527889e1b4e9c4562ea4ed135ac6ca11e9518e1",
+        "corto": "a527889",
+        "autor": "¨ALEJANDROROJPEZ¨",
+        "fecha": "2026-11-18T07:57:23-06:00",
+        "refs": [
+          "HEAD -> main",
+          "origin/main"
+        ],
+        "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+      },
+      "commits": [
+        {
+          "sha": "a527889e1b4e9c4562ea4ed135ac6ca11e9518e1",
+          "corto": "a527889",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-18T07:57:23-06:00",
+          "refs": [
+            "HEAD -> main",
+            "origin/main"
+          ],
+          "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+        },
+        {
+          "sha": "051febe7679805bd2e731e3c304c1742b0b21bb0",
+          "corto": "051febe",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-16T21:09:11-06:00",
+          "refs": [],
+          "mensaje": "Initial commit"
+        }
+      ],
+      "archivosRecientes": [
+        "M\tpackage.json",
+        "A\tpublic/api-docs/index.html",
+        "A\tpublic/api-docs/openapi.json",
+        "A\tpublic/repos-meta.json",
+        "A\tscripts/sincronizar-api.mjs",
+        "M\tsrc/App.tsx",
+        "M\tsrc/componentes/Plantilla.tsx",
+        "M\tsrc/lib/api.ts",
+        "A\tsrc/lib/demo.ts",
+        "M\tsrc/main.tsx",
+        "M\tsrc/paginas/Acceso.tsx",
+        "A\tsrc/paginas/Repositorios.tsx",
+        "M\tvite.config.ts"
+      ]
+    }
+  }
+}
