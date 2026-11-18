@@ -5,8 +5,9 @@
   "description": "Interfaz web de SIGECAP - CNBBBJ Oaxaca",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "sync": "node scripts/sincronizar-api.mjs",
+    "dev": "node scripts/sincronizar-api.mjs && vite",
+    "build": "node scripts/sincronizar-api.mjs && tsc --noEmit && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

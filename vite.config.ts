@@ -5,8 +5,10 @@ import tailwindcss from '@tailwindcss/vite';
 // En desarrollo, las peticiones a /api y a /socket.io se reenvían al backend (sigecap-api)
 // para que el navegador trabaje con un solo origen.
 export default defineConfig(({ mode }) => {
-  const API = loadEnv(mode, '.', '').VITE_API_PROXY || 'http://localhost:3000';
+  const env = loadEnv(mode, '.', '');
+  const API = env.VITE_API_PROXY || 'http://localhost:3000';
   return {
+    base: env.VITE_BASE_PATH || './',
     plugins: [react(), tailwindcss()],
     server: {
       port: 5173,

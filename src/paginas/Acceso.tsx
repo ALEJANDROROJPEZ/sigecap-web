@@ -1,7 +1,9 @@
 // Pantallas públicas: inicio de sesión, solicitud de recuperación y nueva contraseña
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { BookOpen, GitBranch, ShieldCheck, UserRound } from 'lucide-react';
 import { api, leerError } from '../lib/api';
+import { activarModoDemo } from '../lib/demo';
 import { Alerta, Boton, Entrada } from '../componentes/ui';
 import { useSesion } from '../contexto/Sesion';
 
@@ -61,6 +63,20 @@ export function Acceso() {
     }
   }
 
+  async function entrarDemo(rol: 'ADMINISTRADOR' | 'EMPLEADO') {
+    setError('');
+    setEnviando(true);
+    try {
+      activarModoDemo(rol);
+      const perfil = await iniciarSesion(rol === 'ADMINISTRADOR' ? 'admin@becasbenitojuarez.gob.mx' : 'empleado@becasbenitojuarez.gob.mx', 'demo');
+      navegar(perfil.rol === 'ADMINISTRADOR' ? '/' : '/mis-cursos', { replace: true });
+    } catch (err) {
+      setError((await leerError(err)).mensaje);
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   return (
     <Marco titulo="Inicia sesión" descripcion="Entra con tu correo institucional. Si aún no tienes uno, usa tu CURP.">
       <form onSubmit={enviar} className="space-y-4" noValidate>
@@ -72,6 +88,30 @@ export function Acceso() {
         <Boton type="submit" variante="primario" className="w-full" cargando={enviando} disabled={!identificador || !contrasena}>Iniciar sesión</Boton>
         <p className="text-center text-sm"><Link to="/recuperar" className="text-marca hover:underline">Olvidé mi contraseña</Link></p>
       </form>
+
+      <div className="mt-7 space-y-3 rounded-lg border border-borde bg-realce/60 p-4">
+        <p className="text-xs font-semibold tracking-wider text-suave uppercase">GitHub Pages · Vista previa e integración</p>
+        <p className="text-xs text-suave">
+          Explora la interfaz sin servidor activo o consulta los cambios en vivo de <strong>sigecap-api</strong> y <strong>sigecap-web</strong>.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <Boton chico icono={<ShieldCheck className="size-3.5" />} onClick={() => entrarDemo('ADMINISTRADOR')} disabled={enviando}>
+            Demo Admin
+          </Boton>
+          <Boton chico icono={<UserRound className="size-3.5" />} onClick={() => entrarDemo('EMPLEADO')} disabled={enviando}>
+            Demo Empleado
+          </Boton>
+        </div>
+        <div className="flex flex-col gap-1.5 border-t border-borde pt-2.5 text-xs">
+          <Link to="/repositorios" className="inline-flex items-center gap-1.5 font-medium text-marca hover:underline">
+            <GitBranch className="size-3.5" /> Ver cambios de ambos repositorios y endpoints
+          </Link>
+          <a href={`${(import.meta.env.BASE_URL || './').replace(/\/$/, '')}/api-docs/index.html`} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1.5 font-medium text-marca hover:underline">
+            <BookOpen className="size-3.5" /> Documentación interactiva Swagger (sigecap-api)
+          </a>
+        </div>
+      </div>
     </Marco>
   );
 }

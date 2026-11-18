@@ -20,6 +20,7 @@ const Bitacora = lazy(() => import('./paginas/Bitacora'));
 const MisCursos = lazy(() => import('./paginas/MisCursos'));
 const Notificaciones = lazy(() => import('./paginas/Notificaciones'));
 const Perfil = lazy(() => import('./paginas/Perfil'));
+const Repositorios = lazy(() => import('./paginas/Repositorios'));
 
 function ConSesion() {
   const { usuario, cargando } = useSesion();
@@ -50,6 +51,7 @@ export function App() {
         </Route>
         {/* El enlace del correo debe funcionar aunque haya una sesión abierta en el navegador */}
         <Route path="/restablecer" element={<Restablecer />} />
+        <Route path="/repositorios" element={<Repositorios />} />
 
         <Route element={<ConSesion />}>
           <Route element={<SoloAdministrador />}>

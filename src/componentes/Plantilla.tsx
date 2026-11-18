@@ -5,10 +5,10 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import {
-  Bell, BookOpen, ClipboardCheck, FileSpreadsheet, FolderCog, GraduationCap, History, LayoutDashboard, LogOut, Mail, Menu, Moon,
+  Bell, BookOpen, ClipboardCheck, FileSpreadsheet, FolderCog, GitBranch, GraduationCap, History, LayoutDashboard, LogOut, Mail, Menu, Moon,
   Send, Sun, UserCog, UserRound, Users, X,
 } from 'lucide-react';
-import { URL_API, api, obtenerToken } from '../lib/api';
+import { URL_API, api, esModoDemo, obtenerToken } from '../lib/api';
 import { cx, haceCuanto } from '../lib/formato';
 import type { Notificacion, Paginado } from '../lib/tipos';
 import { useAvisos } from '../contexto/Avisos';
@@ -31,7 +31,7 @@ function useTiempoReal() {
   const avisos = useAvisos();
   const { usuario } = useSesion();
   useEffect(() => {
-    if (!usuario) return;
+    if (!usuario || esModoDemo()) return;
     const socket = io(URL_API || undefined, { auth: (cb) => cb({ token: obtenerToken() }), transports: ['websocket', 'polling'] });
     socket.on('notificacion:nueva', (n: Notificacion) => {
       avisos.info(`${n.titulo}. ${n.mensaje}`);
@@ -139,6 +139,7 @@ export function Plantilla() {
         { titulo: 'Personal', enlaces: [
           { a: '/mis-cursos', texto: 'Mis cursos', icono: <GraduationCap className={ic} /> },
           { a: '/perfil', texto: 'Mi perfil', icono: <UserRound className={ic} /> },
+          { a: '/repositorios', texto: 'API y Repositorios', icono: <GitBranch className={ic} /> },
         ] },
       ]
     : [
@@ -146,6 +147,7 @@ export function Plantilla() {
           { a: '/mis-cursos', texto: 'Mis cursos', icono: <GraduationCap className={ic} /> },
           { a: '/notificaciones', texto: 'Notificaciones', icono: <Bell className={ic} /> },
           { a: '/perfil', texto: 'Mi perfil', icono: <UserRound className={ic} /> },
+          { a: '/repositorios', texto: 'API y Repositorios', icono: <GitBranch className={ic} /> },
         ] },
       ];
 

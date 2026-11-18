@@ -1,6 +1,7 @@
 // Cliente HTTP de la API. El token de acceso vive en memoria; el de renovación, en localStorage.
 // Cuando una petición responde 401, se renueva el token una sola vez y se reintenta.
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import { desactivarModoDemo, esModoDemo, instalarInterceptorDemo, PERFIL_ADMIN_DEMO, PERFIL_EMPLEADO_DEMO } from './demo';
 
 export const URL_API = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 const CLAVE_REFRESH = 'sigecap.refresh';
@@ -17,10 +18,12 @@ export function guardarSesion(token: string, refreshToken: string) {
 export function borrarSesion() {
   tokenAcceso = null;
   localStorage.removeItem(CLAVE_REFRESH);
+  desactivarModoDemo();
 }
 export const alExpirarSesion = (fn: () => void) => { alExpirar = fn; };
 
 export const api = axios.create({ baseURL: `${URL_API}/api/v1` });
+instalarInterceptorDemo(api);
 
 api.interceptors.request.use((config) => {
   if (tokenAcceso) config.headers.Authorization = `Bearer ${tokenAcceso}`;
@@ -29,6 +32,10 @@ api.interceptors.request.use((config) => {
 
 let renovando: Promise<string> | null = null;
 export function renovarToken(): Promise<string> {
+  if (esModoDemo()) {
+    guardarSesion('demo-jwt-token', 'demo-refresh-token');
+    return Promise.resolve('demo-jwt-token');
+  }
   renovando ??= axios
     .post(`${URL_API}/api/v1/auth/refresh`, { refreshToken: localStorage.getItem(CLAVE_REFRESH) })
     .then((r) => {
@@ -38,6 +45,7 @@ export function renovarToken(): Promise<string> {
     .finally(() => { renovando = null; });
   return renovando;
 }
+export { esModoDemo, PERFIL_ADMIN_DEMO, PERFIL_EMPLEADO_DEMO };
 
 api.interceptors.response.use(undefined, async (error: AxiosError) => {
   const original = error.config as (AxiosRequestConfig & { _reintento?: boolean }) | undefined;

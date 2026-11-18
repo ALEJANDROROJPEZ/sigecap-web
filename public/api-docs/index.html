@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIGECAP API – Documentación OpenAPI (Swagger)</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui.css" />
+    <style>
+      body { margin: 0; background: #faf8f5; font-family: system-ui, -apple-system, sans-serif; }
+      .barra-institucional {
+        background: #611232;
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+         flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 3px solid #d4af37;
+      }
+      .barra-institucional a {
+        color: #f3e5ab;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .barra-institucional a:hover { text-decoration: underline; }
+      .swagger-ui .topbar { display: none; }
+    </style>
+  </head>
+  <body>
+    <header class="barra-institucional">
+      <div>
+        <strong style="font-size: 1.125rem; letter-spacing: -0.01em;">SIGECAP API</strong>
+        <span style="margin-left: 0.75rem; font-size: 0.85rem; opacity: 0.85;">Documentación interactiva OpenAPI 3.0 (sincronizada desde sigecap-api)</span>
+      </div>
+      <div style="display: flex; gap: 1.25rem; align-items: center;">
+        <a href="../">← Volver a SIGECAP Web</a>
+        <a href="https://github.com/ALEJANDROROJPEZ/sigecap-api" target="_blank" rel="noreferrer">Repositorio sigecap-api ↗</a>
+        <a href="https://github.com/ALEJANDROROJPEZ/sigecap-web" target="_blank" rel="noreferrer">Repositorio sigecap-web ↗</a>
+      </div>
+    </header>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.18.2/swagger-ui-bundle.js"></script>
+    <script>
+      window.addEventListener('load', async () => {
+        let specUrl = './openapi.json';
+        try {
+          const r = await fetch('https://raw.githubusercontent.com/ALEJANDROROJPEZ/sigecap-api/rama1/src/docs/openapi.json');
+          if (r.ok) specUrl = 'https://raw.githubusercontent.com/ALEJANDROROJPEZ/sigecap-api/rama1/src/docs/openapi.json';
+        } catch {}
+        SwaggerUIBundle({
+          url: specUrl,
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          docExpansion: 'list',
+          filter: true,
+          persistAuthorization: true,
+        });
+      });
+    </script>
+  </body>
+</html>

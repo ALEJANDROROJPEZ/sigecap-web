@@ -17,10 +17,13 @@ const consultas = new QueryClient({
   defaultOptions: { queries: { staleTime: 20_000, retry: 1, refetchOnWindowFocus: false } },
 });
 
+// En GitHub Pages la aplicación se sirve bajo /sigecap-web/; en local, en /
+const baseRuta = window.location.pathname.startsWith('/sigecap-web') ? '/sigecap-web' : undefined;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={consultas}>
-      <BrowserRouter>
+      <BrowserRouter basename={baseRuta}>
         <ProveedorAvisos>
           <ProveedorSesion>
             <App />

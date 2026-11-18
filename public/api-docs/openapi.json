@@ -1,0 +1,3434 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "SIGECAP API",
+  "version": "1.0.0",
+  "description": "API REST del sistema de gestión de cursos de capacitación de la CNBBBJ Oaxaca. Todas las respuestas son JSON salvo las descargas. Los listados paginados devuelven {total, pagina, porPagina, datos}; los errores, {error, detalles}."
+ },
+ "servers": [
+  {
+   "url": "/api/v1"
+  }
+ ],
+ "tags": [
+  {
+   "name": "Autenticación"
+  },
+  {
+   "name": "Usuarios y roles"
+  },
+  {
+   "name": "Catálogos"
+  },
+  {
+   "name": "Empleados"
+  },
+  {
+   "name": "Cursos"
+  },
+  {
+   "name": "Mis cursos"
+  },
+  {
+   "name": "Asignaciones y correos"
+  },
+  {
+   "name": "Evidencias"
+  },
+  {
+   "name": "Notificaciones"
+  },
+  {
+   "name": "Reportes"
+  },
+  {
+   "name": "Bitácora"
+  }
+ ],
+ "components": {
+  "securitySchemes": {
+   "bearerAuth": {
+    "type": "http",
+    "scheme": "bearer",
+    "bearerFormat": "JWT"
+   }
+  }
+ },
+ "paths": {
+  "/auth/login": {
+   "post": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Inicia sesión con correo institucional o CURP",
+    "responses": {
+     "200": {
+      "description": "Token de acceso, token de renovación y perfil"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "401": {
+      "description": "Credenciales incorrectas"
+     },
+     "429": {
+      "description": "Demasiados intentos fallidos (5 en 15 minutos)"
+     }
+    },
+    "description": "**Rol:** Público.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "identificador": {
+          "type": "string",
+          "example": "admin@ejemplo.gob.mx"
+         },
+         "contrasena": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "identificador",
+         "contrasena"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/refresh": {
+   "post": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Renueva el token de acceso",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "401": {
+      "description": "Token de renovación inválido o cuenta desactivada"
+     }
+    },
+    "description": "**Rol:** Público.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "refreshToken": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "refreshToken"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/forgot-password": {
+   "post": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Solicita el enlace para restablecer la contraseña",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "description": "Responde igual exista o no la cuenta. El enlace se envía al correo institucional y al de respaldo y vence en 30 minutos. **Rol:** Público.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "identificador": {
+          "type": "string",
+          "description": "Correo institucional o CURP"
+         }
+        },
+        "required": [
+         "identificador"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/reset-password": {
+   "post": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Define una nueva contraseña con el token recibido por correo",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "description": "**Rol:** Público.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "token": {
+          "type": "string"
+         },
+         "contrasena": {
+          "type": "string",
+          "description": "Mínimo 8 caracteres, con letras y números"
+         }
+        },
+        "required": [
+         "token",
+         "contrasena"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/me": {
+   "get": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Perfil del usuario autenticado",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado."
+   }
+  },
+  "/auth/me/contrasena": {
+   "post": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Cambia la contraseña propia",
+    "responses": {
+     "204": {
+      "description": "Contraseña actualizada"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "actual": {
+          "type": "string"
+         },
+         "nueva": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "actual",
+         "nueva"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/me/preferencias": {
+   "patch": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Guarda el tema de la interfaz (claro u oscuro)",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "tema": {
+          "type": "string",
+          "enum": [
+           "CLARO",
+           "OSCURO"
+          ]
+         }
+        },
+        "required": [
+         "tema"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/me/contacto": {
+   "patch": {
+    "tags": [
+     "Autenticación"
+    ],
+    "summary": "Actualiza los datos de contacto propios",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "Con correo institucional, el correo de respaldo y el teléfono son obligatorios. **Rol:** Autenticado.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "correoRespaldo": {
+          "type": "string",
+          "nullable": true
+         },
+         "telefono": {
+          "type": "string",
+          "nullable": true,
+          "description": "10 dígitos"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/usuarios": {
+   "get": {
+    "tags": [
+     "Usuarios y roles"
+    ],
+    "summary": "Lista las cuentas de usuario",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "rol",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "ADMINISTRADOR",
+        "EMPLEADO"
+       ]
+      }
+     },
+     {
+      "name": "activo",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Usuarios y roles"
+    ],
+    "summary": "Crea la cuenta de un empleado",
+    "responses": {
+     "201": {
+      "description": "Cuenta creada; incluye la contraseña temporal (se muestra una sola vez)"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "El empleado ya tiene cuenta o está dado de baja"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "idEmpleado": {
+          "type": "integer"
+         },
+         "rol": {
+          "type": "string",
+          "enum": [
+           "ADMINISTRADOR",
+           "EMPLEADO"
+          ]
+         }
+        },
+        "required": [
+         "idEmpleado"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/usuarios/faltantes": {
+   "post": {
+    "tags": [
+     "Usuarios y roles"
+    ],
+    "summary": "Crea cuentas para todos los empleados activos que no tienen",
+    "responses": {
+     "201": {
+      "description": "Cuentas creadas con sus contraseñas temporales"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador."
+   }
+  },
+  "/usuarios/{id}": {
+   "patch": {
+    "tags": [
+     "Usuarios y roles"
+    ],
+    "summary": "Cambia el rol o activa/desactiva una cuenta",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "Debe quedar al menos un administrador activo"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "rol": {
+          "type": "string",
+          "enum": [
+           "ADMINISTRADOR",
+           "EMPLEADO"
+          ]
+         },
+         "activo": {
+          "type": "boolean"
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/usuarios/{id}/restablecer": {
+   "post": {
+    "tags": [
+     "Usuarios y roles"
+    ],
+    "summary": "Asigna una nueva contraseña temporal",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/catalogos": {
+   "get": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Sedes, áreas, dependencias, temas del Comité de Ética y roles",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado."
+   }
+  },
+  "/catalogos/sedes": {
+   "post": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Registra sede",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "Valor único duplicado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "clave": {
+          "type": "string",
+          "example": "SARE-01"
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "tipo": {
+          "type": "string",
+          "enum": [
+           "ORE",
+           "SARE"
+          ]
+         }
+        },
+        "required": [
+         "clave",
+         "nombre",
+         "tipo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/sedes/{id}": {
+   "put": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Actualiza sede",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "clave": {
+          "type": "string",
+          "example": "SARE-01"
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "tipo": {
+          "type": "string",
+          "enum": [
+           "ORE",
+           "SARE"
+          ]
+         }
+        },
+        "required": [
+         "clave",
+         "nombre",
+         "tipo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/areas": {
+   "post": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Registra área",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "Valor único duplicado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "nombre": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "nombre"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/areas/{id}": {
+   "put": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Actualiza área",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "nombre": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "nombre"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/dependencias": {
+   "post": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Registra dependencia",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "Valor único duplicado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "siglas": {
+          "type": "string",
+          "example": "INMUJERES"
+         },
+         "nombre": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "siglas",
+         "nombre"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/dependencias/{id}": {
+   "put": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Actualiza dependencia",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "siglas": {
+          "type": "string",
+          "example": "INMUJERES"
+         },
+         "nombre": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "siglas",
+         "nombre"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/temas-etica": {
+   "post": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Registra tema del Comité de Ética",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "Valor único duplicado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "codigo": {
+          "type": "string",
+          "example": "07"
+         },
+         "descripcion": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "codigo",
+         "descripcion"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/catalogos/temas-etica/{id}": {
+   "put": {
+    "tags": [
+     "Catálogos"
+    ],
+    "summary": "Actualiza tema del Comité de Ética",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "codigo": {
+          "type": "string",
+          "example": "07"
+         },
+         "descripcion": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "codigo",
+         "descripcion"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/empleados": {
+   "get": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Lista y busca empleados (nombre, CUPO, CURP o correo)",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idArea",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "tipoContratacion",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "ESTRUCTURA",
+        "HONORARIOS"
+       ]
+      }
+     },
+     {
+      "name": "activo",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "sinCuenta",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      },
+      "description": "Solo quienes no tienen cuenta de usuario"
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Alta de empleado",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "CUPO, CURP o correo institucional ya registrados"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "Al darlo de alta se le asignan los cursos vigentes de su sede y los generales. **Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "cupo": {
+          "type": "string",
+          "example": "012345",
+          "description": "6 dígitos, única"
+         },
+         "curp": {
+          "type": "string",
+          "description": "18 caracteres, única y obligatoria"
+         },
+         "numTrabajadorRusp": {
+          "type": "string",
+          "nullable": true
+         },
+         "tipoContratacion": {
+          "type": "string",
+          "enum": [
+           "ESTRUCTURA",
+           "HONORARIOS"
+          ]
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "apellidoPaterno": {
+          "type": "string"
+         },
+         "apellidoMaterno": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoInstitucional": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoRespaldo": {
+          "type": "string",
+          "nullable": true,
+          "description": "Obligatorio si hay correo institucional"
+         },
+         "telefono": {
+          "type": "string",
+          "nullable": true,
+          "description": "10 dígitos; obligatorio si hay correo institucional"
+         },
+         "puesto": {
+          "type": "string"
+         },
+         "idArea": {
+          "type": "integer"
+         },
+         "idSede": {
+          "type": "integer"
+         }
+        },
+        "required": [
+         "cupo",
+         "curp",
+         "tipoContratacion",
+         "nombre",
+         "apellidoPaterno",
+         "puesto",
+         "idArea",
+         "idSede"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/empleados/plantilla": {
+   "get": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Descarga la plantilla de Excel para la importación",
+    "responses": {
+     "200": {
+      "description": "Archivo .xlsx"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador."
+   }
+  },
+  "/empleados/importar": {
+   "post": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Importa empleados desde Excel",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "Agrega los registros nuevos y actualiza los existentes por CUPO. Devuelve el resumen y los errores por fila. **Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "confirmar",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      },
+      "description": "false (predeterminado): solo vista previa; true: aplica los cambios"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "archivo": {
+          "type": "string",
+          "format": "binary"
+         }
+        },
+        "required": [
+         "archivo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/empleados/{id}": {
+   "get": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Detalle del empleado con su historial de cursos",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "404": {
+      "description": "No encontrado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   },
+   "put": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Actualiza los datos del empleado",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "cupo": {
+          "type": "string",
+          "example": "012345",
+          "description": "6 dígitos, única"
+         },
+         "curp": {
+          "type": "string",
+          "description": "18 caracteres, única y obligatoria"
+         },
+         "numTrabajadorRusp": {
+          "type": "string",
+          "nullable": true
+         },
+         "tipoContratacion": {
+          "type": "string",
+          "enum": [
+           "ESTRUCTURA",
+           "HONORARIOS"
+          ]
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "apellidoPaterno": {
+          "type": "string"
+         },
+         "apellidoMaterno": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoInstitucional": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoRespaldo": {
+          "type": "string",
+          "nullable": true,
+          "description": "Obligatorio si hay correo institucional"
+         },
+         "telefono": {
+          "type": "string",
+          "nullable": true,
+          "description": "10 dígitos; obligatorio si hay correo institucional"
+         },
+         "puesto": {
+          "type": "string"
+         },
+         "idArea": {
+          "type": "integer"
+         },
+         "idSede": {
+          "type": "integer"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Actualiza parcialmente los datos del empleado",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "cupo": {
+          "type": "string",
+          "example": "012345",
+          "description": "6 dígitos, única"
+         },
+         "curp": {
+          "type": "string",
+          "description": "18 caracteres, única y obligatoria"
+         },
+         "numTrabajadorRusp": {
+          "type": "string",
+          "nullable": true
+         },
+         "tipoContratacion": {
+          "type": "string",
+          "enum": [
+           "ESTRUCTURA",
+           "HONORARIOS"
+          ]
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "apellidoPaterno": {
+          "type": "string"
+         },
+         "apellidoMaterno": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoInstitucional": {
+          "type": "string",
+          "nullable": true
+         },
+         "correoRespaldo": {
+          "type": "string",
+          "nullable": true,
+          "description": "Obligatorio si hay correo institucional"
+         },
+         "telefono": {
+          "type": "string",
+          "nullable": true,
+          "description": "10 dígitos; obligatorio si hay correo institucional"
+         },
+         "puesto": {
+          "type": "string"
+         },
+         "idArea": {
+          "type": "integer"
+         },
+         "idSede": {
+          "type": "integer"
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Baja lógica (equivale a estado activo=false)",
+    "responses": {
+     "204": {
+      "description": "Dado de baja"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/empleados/{id}/estado": {
+   "patch": {
+    "tags": [
+     "Empleados"
+    ],
+    "summary": "Baja o reactivación lógica",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "activo": {
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "activo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/cursos": {
+   "get": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Lista los cursos por dependencia y trimestre",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "idDependencia",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "activo",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Registra un curso",
+    "responses": {
+     "201": {
+      "description": "Creado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "idDependencia": {
+          "type": "integer"
+         },
+         "idTemaEtica": {
+          "type": "integer",
+          "nullable": true
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "nombreCorto": {
+          "type": "string",
+          "nullable": true,
+          "description": "Nombre de la hoja en el Formulario del Comité de Ética (31 caracteres)"
+         },
+         "ordenReporte": {
+          "type": "integer",
+          "nullable": true
+         },
+         "aplicaEstructura": {
+          "type": "boolean"
+         },
+         "aplicaHonorarios": {
+          "type": "boolean"
+         },
+         "descripcion": {
+          "type": "string",
+          "nullable": true
+         },
+         "trimestre": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+         },
+         "anio": {
+          "type": "integer"
+         },
+         "fechaInicio": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "fechaLimiteRegistro": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "fechaEntregaConstancia": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "urlPlataforma": {
+          "type": "string",
+          "nullable": true
+         }
+        },
+        "required": [
+         "idDependencia",
+         "nombre",
+         "trimestre",
+         "anio"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/cursos/anios": {
+   "get": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Años que tienen cursos registrados",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador."
+   }
+  },
+  "/cursos/{id}": {
+   "get": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Detalle del curso",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   },
+   "put": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Actualiza un curso",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "idDependencia": {
+          "type": "integer"
+         },
+         "idTemaEtica": {
+          "type": "integer",
+          "nullable": true
+         },
+         "nombre": {
+          "type": "string"
+         },
+         "nombreCorto": {
+          "type": "string",
+          "nullable": true,
+          "description": "Nombre de la hoja en el Formulario del Comité de Ética (31 caracteres)"
+         },
+         "ordenReporte": {
+          "type": "integer",
+          "nullable": true
+         },
+         "aplicaEstructura": {
+          "type": "boolean"
+         },
+         "aplicaHonorarios": {
+          "type": "boolean"
+         },
+         "descripcion": {
+          "type": "string",
+          "nullable": true
+         },
+         "trimestre": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+         },
+         "anio": {
+          "type": "integer"
+         },
+         "fechaInicio": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "fechaLimiteRegistro": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "fechaEntregaConstancia": {
+          "type": "string",
+          "format": "date",
+          "nullable": true
+         },
+         "urlPlataforma": {
+          "type": "string",
+          "nullable": true
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/cursos/{id}/estado": {
+   "patch": {
+    "tags": [
+     "Cursos"
+    ],
+    "summary": "Baja o reactivación del curso",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "activo": {
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "activo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/mis-cursos": {
+   "get": {
+    "tags": [
+     "Mis cursos"
+    ],
+    "summary": "Cursos del usuario autenticado con su última constancia",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado.",
+    "parameters": [
+     {
+      "name": "estado",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "PENDIENTE",
+        "EN_REVISION",
+        "COMPLETADO",
+        "RECHAZADO"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "/mis-cursos/catalogo": {
+   "get": {
+    "tags": [
+     "Mis cursos"
+    ],
+    "summary": "Cursos que puede registrar como concluidos en años anteriores",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado."
+   }
+  },
+  "/asignaciones": {
+   "get": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Lista las asignaciones con su avance",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "idCurso",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "activo",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Asigna un curso a una o varias sedes o a todo el personal",
+    "responses": {
+     "201": {
+      "description": "Asignaciones creadas y número de empleados asignados"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "El curso ya está asignado a esos destinatarios"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "idCurso": {
+          "type": "integer"
+         },
+         "esGeneral": {
+          "type": "boolean"
+         },
+         "idSedes": {
+          "type": "array",
+          "items": {
+           "type": "integer"
+          }
+         },
+         "enviarCorreo": {
+          "type": "boolean",
+          "description": "Envía el correo de aviso en la misma operación"
+         }
+        },
+        "required": [
+         "idCurso"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/asignaciones/{id}": {
+   "get": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Detalle con el estado de cada empleado",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/asignaciones/{id}/estado": {
+   "patch": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Activa o desactiva una asignación",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "activo": {
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "activo"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/asignaciones/{id}/correo": {
+   "post": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Envía o reenvía el correo a quienes no han acreditado el curso",
+    "responses": {
+     "202": {
+      "description": "Envío registrado; se procesa en segundo plano"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/correos/plantillas": {
+   "get": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Plantillas de correo configurables",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador."
+   }
+  },
+  "/correos/plantillas/{id}": {
+   "put": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Edita el asunto y el cuerpo de una plantilla",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "asunto": {
+          "type": "string"
+         },
+         "cuerpoHtml": {
+          "type": "string",
+          "description": "HTML con variables {{nombre}}, {{curso}}, etc."
+         }
+        },
+        "required": [
+         "asunto",
+         "cuerpoHtml"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/correos/plantillas/{id}/restaurar": {
+   "post": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Restaura el texto predeterminado de una plantilla",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/correos/envios": {
+   "get": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Historial de envíos",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   }
+  },
+  "/correos/prueba": {
+   "post": {
+    "tags": [
+     "Asignaciones y correos"
+    ],
+    "summary": "Verifica la configuración SMTP con un correo de prueba",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "para": {
+          "type": "string",
+          "format": "email"
+         }
+        },
+        "required": [
+         "para"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/evidencias": {
+   "post": {
+    "tags": [
+     "Evidencias"
+    ],
+    "summary": "Sube una constancia en PDF (máximo 5 MB)",
+    "responses": {
+     "201": {
+      "description": "Constancia recibida, queda en revisión"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "El curso ya está acreditado o tiene una constancia en revisión"
+     },
+     "413": {
+      "description": "El archivo supera 5 MB"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "Se indica idCursoEmpleado o idCurso, no ambos. **Rol:** Autenticado.",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "archivo": {
+          "type": "string",
+          "format": "binary"
+         },
+         "idCursoEmpleado": {
+          "type": "integer",
+          "description": "Curso asignado (de /mis-cursos)"
+         },
+         "idCurso": {
+          "type": "integer",
+          "description": "Curso del catálogo, para registrar uno concluido en años anteriores"
+         },
+         "fechaInicioCurso": {
+          "type": "string",
+          "format": "date"
+         },
+         "fechaConclusion": {
+          "type": "string",
+          "format": "date"
+         }
+        },
+        "required": [
+         "archivo",
+         "fechaInicioCurso",
+         "fechaConclusion"
+        ]
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Evidencias"
+    ],
+    "summary": "Lista las constancias para su revisión",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "estado",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "EN_REVISION",
+        "APROBADA",
+        "RECHAZADA"
+       ]
+      }
+     },
+     {
+      "name": "idCurso",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idDependencia",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   }
+  },
+  "/evidencias/{id}": {
+   "get": {
+    "tags": [
+     "Evidencias"
+    ],
+    "summary": "Detalle de una constancia",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador o propietario.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   },
+   "patch": {
+    "tags": [
+     "Evidencias"
+    ],
+    "summary": "Aprueba o rechaza una constancia",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Datos inválidos (el campo «detalles» indica cada error)"
+     },
+     "409": {
+      "description": "La constancia ya fue dictaminada"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "El resultado se notifica al empleado en el sistema y por correo. **Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "estado": {
+          "type": "string",
+          "enum": [
+           "APROBADA",
+           "RECHAZADA"
+          ]
+         },
+         "comentario": {
+          "type": "string",
+          "description": "Obligatorio al rechazar"
+         }
+        },
+        "required": [
+         "estado"
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "/evidencias/{id}/archivo": {
+   "get": {
+    "tags": [
+     "Evidencias"
+    ],
+    "summary": "Visualiza el PDF de la constancia",
+    "responses": {
+     "200": {
+      "description": "Archivo PDF"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador o propietario.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/notificaciones": {
+   "get": {
+    "tags": [
+     "Notificaciones"
+    ],
+    "summary": "Notificaciones propias y contador de no leídas",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "Las nuevas también se entregan en tiempo real por Socket.IO con el evento «notificacion:nueva». **Rol:** Autenticado.",
+    "parameters": [
+     {
+      "name": "soloNoLeidas",
+      "in": "query",
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   }
+  },
+  "/notificaciones/leidas": {
+   "patch": {
+    "tags": [
+     "Notificaciones"
+    ],
+    "summary": "Marca todas como leídas",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado."
+   },
+   "delete": {
+    "tags": [
+     "Notificaciones"
+    ],
+    "summary": "Elimina las notificaciones leídas",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado."
+   }
+  },
+  "/notificaciones/{id}/leida": {
+   "patch": {
+    "tags": [
+     "Notificaciones"
+    ],
+    "summary": "Marca una notificación como leída",
+    "responses": {
+     "204": {
+      "description": "Marcada"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/notificaciones/{id}": {
+   "delete": {
+    "tags": [
+     "Notificaciones"
+    ],
+    "summary": "Elimina una notificación",
+    "responses": {
+     "204": {
+      "description": "Eliminada"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Autenticado.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/reportes/dashboard": {
+   "get": {
+    "tags": [
+     "Reportes"
+    ],
+    "summary": "Indicadores y series del dashboard",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "1 a 4"
+     },
+     {
+      "name": "idDependencia",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/reportes/rezagados": {
+   "get": {
+    "tags": [
+     "Reportes"
+    ],
+    "summary": "Personal con cursos pendientes",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "1 a 4"
+     },
+     {
+      "name": "idDependencia",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   }
+  },
+  "/reportes/exportar": {
+   "get": {
+    "tags": [
+     "Reportes"
+    ],
+    "summary": "Exporta reportes en Excel, PDF o CSV",
+    "responses": {
+     "200": {
+      "description": "Archivo generado"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     },
+     "400": {
+      "description": "Combinación de tipo y formato no válida"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "«concentrado» y «comite-etica» son los formatos institucionales y solo se generan en Excel; «comite-etica» requiere año y trimestre. **Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "tipo",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "enum": [
+        "concentrado",
+        "comite-etica",
+        "cumplimiento",
+        "rezagados"
+       ]
+      }
+     },
+     {
+      "name": "formato",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "xlsx",
+        "pdf",
+        "csv"
+       ]
+      }
+     },
+     {
+      "name": "anio",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "trimestre",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "1 a 4"
+     },
+     {
+      "name": "idDependencia",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "idSede",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/bitacora": {
+   "get": {
+    "tags": [
+     "Bitácora"
+    ],
+    "summary": "Consulta la bitácora de auditoría",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador.",
+    "parameters": [
+     {
+      "name": "buscar",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "idUsuario",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "accion",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "entidad",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "desde",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date"
+      }
+     },
+     {
+      "name": "hasta",
+      "in": "query",
+      "schema": {
+       "type": "string",
+       "format": "date"
+      }
+     },
+     {
+      "name": "pagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Página (inicia en 1)"
+     },
+     {
+      "name": "porPagina",
+      "in": "query",
+      "schema": {
+       "type": "integer"
+      },
+      "description": "Registros por página (máx. 200)"
+     }
+    ]
+   }
+  },
+  "/bitacora/filtros": {
+   "get": {
+    "tags": [
+     "Bitácora"
+    ],
+    "summary": "Acciones y entidades registradas (para los filtros)",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "401": {
+      "description": "Token requerido, inválido o expirado"
+     },
+     "403": {
+      "description": "El rol no tiene permiso"
+     }
+    },
+    "security": [
+     {
+      "bearerAuth": []
+     }
+    ],
+    "description": "**Rol:** Administrador."
+   }
+  }
+ }
+}

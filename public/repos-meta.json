@@ -1,0 +1,141 @@
+{
+  "sincronizadoEn": "2026-11-18T13:57:23.426Z",
+  "resumenApi": {
+    "titulo": "SIGECAP API",
+    "version": "1.0.0",
+    "descripcion": "API REST del sistema de gestión de cursos de capacitación de la CNBBBJ Oaxaca. Todas las respuestas son JSON salvo las descargas. Los listados paginados devuelven {total, pagina, porPagina, datos}; los errores, {error, detalles}.",
+    "totalRutas": 53,
+    "totalOperaciones": 64,
+    "tags": [
+      "Autenticación",
+      "Usuarios y roles",
+      "Catálogos",
+      "Empleados",
+      "Cursos",
+      "Mis cursos",
+      "Asignaciones y correos",
+      "Evidencias",
+      "Notificaciones",
+      "Reportes",
+      "Bitácora"
+    ]
+  },
+  "repositorios": {
+    "api": {
+      "nombre": "sigecap-api",
+      "disponible": true,
+      "url": "https://github.com/ALEJANDROROJPEZ/sigecap-api",
+      "ramaActual": "rama1",
+      "ramas": [
+        "main",
+        "rama1"
+      ],
+      "ultimoCommit": {
+        "sha": "41b251e9bd40df34034864e289d10cb4306a83ac",
+        "corto": "41b251e",
+        "autor": "¨ALEJANDROROJPEZ¨",
+        "fecha": "2026-11-18T07:57:21-06:00",
+        "refs": [
+          "HEAD -> rama1",
+          "origin/rama1"
+        ],
+        "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+      },
+      "commits": [
+        {
+          "sha": "41b251e9bd40df34034864e289d10cb4306a83ac",
+          "corto": "41b251e",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-18T07:57:21-06:00",
+          "refs": [
+            "HEAD -> rama1",
+            "origin/rama1"
+          ],
+          "mensaje": "Unificar sigecap-api y sigecap-web para despliegue sincronizado en GitHub Pages"
+        },
+        {
+          "sha": "f612d6e83ffe6cde129522b1fab9e729164704c3",
+          "corto": "f612d6e",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-16T20:57:13-06:00",
+          "refs": [],
+          "mensaje": "Api v1"
+        },
+        {
+          "sha": "53410760fad76a0e24cd61fadf82b0382bb10e4e",
+          "corto": "5341076",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-15T05:49:04-06:00",
+          "refs": [
+            "origin/main",
+            "main"
+          ],
+          "mensaje": "Primer commit"
+        }
+      ],
+      "archivosRecientes": [
+        "M\t.gitignore"
+      ]
+    },
+    "web": {
+      "nombre": "sigecap-web",
+      "disponible": true,
+      "url": "https://github.com/ALEJANDROROJPEZ/sigecap-web",
+      "ramaActual": "main",
+      "ramas": [
+        "main"
+      ],
+      "ultimoCommit": {
+        "sha": "051febe7679805bd2e731e3c304c1742b0b21bb0",
+        "corto": "051febe",
+        "autor": "¨ALEJANDROROJPEZ¨",
+        "fecha": "2026-11-16T21:09:11-06:00",
+        "refs": [
+          "HEAD -> main",
+          "origin/main"
+        ],
+        "mensaje": "Initial commit"
+      },
+      "commits": [
+        {
+          "sha": "051febe7679805bd2e731e3c304c1742b0b21bb0",
+          "corto": "051febe",
+          "autor": "¨ALEJANDROROJPEZ¨",
+          "fecha": "2026-11-16T21:09:11-06:00",
+          "refs": [
+            "HEAD -> main",
+            "origin/main"
+          ],
+          "mensaje": "Initial commit"
+        }
+      ],
+      "archivosRecientes": [
+        "A\t.env.example",
+        "A\t.gitignore",
+        "A\tREADME.md",
+        "A\tindex.html",
+        "A\tpackage-lock.json",
+        "A\tpackage.json",
+        "A\tpublic/favicon.svg",
+        "A\tsrc/App.tsx",
+        "A\tsrc/componentes/Plantilla.tsx",
+        "A\tsrc/componentes/VisorPdf.tsx",
+        "A\tsrc/componentes/ui.tsx",
+        "A\tsrc/contexto/Avisos.tsx",
+        "A\tsrc/contexto/Sesion.tsx",
+        "A\tsrc/index.css",
+        "A\tsrc/lib/api.ts",
+        "A\tsrc/lib/consultas.ts",
+        "A\tsrc/lib/formato.ts",
+        "A\tsrc/lib/tipos.ts",
+        "A\tsrc/main.tsx",
+        "A\tsrc/paginas/Acceso.tsx",
+        "A\tsrc/paginas/Asignaciones.tsx",
+        "A\tsrc/paginas/Bitacora.tsx",
+        "A\tsrc/paginas/Catalogos.tsx",
+        "A\tsrc/paginas/Constancias.tsx",
+        "A\tsrc/paginas/Correos.tsx"
+      ]
+    }
+  }
+}
